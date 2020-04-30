@@ -1,0 +1,1 @@
+web: npm preinstall && npm start
