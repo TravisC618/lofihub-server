@@ -8,6 +8,7 @@ const errHandler = require("./middlewares/errHandler");
 
 const app = express();
 
+const HOST = "0.0.0.0";
 const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json());
@@ -20,7 +21,7 @@ app.use(errHandler);
 connectToDB()
     .then(() => {
         console.log("DB connected");
-        app.listen(PORT, () => {
+        app.listen(PORT, HOST, () => {
             console.log(`Server is listening to PORT: ${PORT}`);
         });
     })
