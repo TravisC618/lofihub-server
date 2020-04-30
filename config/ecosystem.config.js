@@ -2,7 +2,7 @@ module.exports = {
     apps: [
         {
             name: "lofihub-server",
-            script: "src/index.js",
+            script: "./src/index.js",
             args: "one two",
             instances: 1,
             autorestart: true,
