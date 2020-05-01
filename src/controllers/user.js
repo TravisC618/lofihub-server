@@ -59,7 +59,6 @@ const updateUser = async (req, res) => {
 
 const updateUserAvatar = async (req, res) => {
     console.log(req.file);
-    debugger;
     if (!req.file) {
         return formateResponse(res, "Image missing", 400);
     }
