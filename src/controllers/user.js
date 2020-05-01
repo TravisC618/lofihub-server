@@ -58,7 +58,6 @@ const updateUser = async (req, res) => {
 };
 
 const updateUserAvatar = async (req, res) => {
-    console.log(req.file);
     if (!req.file) {
         return formateResponse(res, "Image missing", 400);
     }
@@ -67,13 +66,13 @@ const updateUserAvatar = async (req, res) => {
     const existingUser = await User.findByIdAndUpdate(
         id,
         {
-            avatar: req.file.path,
+            avatar: req.file.location,
         },
         { new: true }
     );
 
     if (!existingUser) {
-        deleteImage(req.file.path);
+        deleteImage(req.file.key);
         return formateResponse(res, "User does not existed", 404);
     }
 

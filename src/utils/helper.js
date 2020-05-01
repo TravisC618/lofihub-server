@@ -21,4 +21,9 @@ const convertUpdateBody = (body, keys) => {
     return newBody;
 };
 
-module.exports = { formateResponse, convertUpdateBody };
+const extractS3FolderName = (baseUrl) => {
+    const urlArray = baseUrl.split("/");
+    return urlArray[urlArray.length - 1];
+};
+
+module.exports = { formateResponse, convertUpdateBody, extractS3FolderName };
