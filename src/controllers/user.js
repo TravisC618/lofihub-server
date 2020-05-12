@@ -24,7 +24,7 @@ const addUser = async (req, res) => {
 const getUser = async (req, res) => {
     const { id } = req.params;
 
-    const existingUser = await User.findById(id).select({
+    const existingUser = await User.findById(id).populate("videos").select({
         password: 0,
     });
 
