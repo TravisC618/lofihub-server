@@ -21,7 +21,7 @@ module.exports = (req, res, next) => {
         );
     }
 
-    const decoded = verifyToken(contentArr[1]);
+    const decoded = verifyToken(contentArr[1], "login");
     if (decoded) {
         res.user = decoded;
         return next();

@@ -15,6 +15,11 @@ const schema = mongoose.Schema(
             type: String,
             required: true,
         },
+        confirmed: {
+            type: Boolean,
+            default: false,
+        },
+
         avatar: {
             type: String,
         },
@@ -36,6 +41,39 @@ const schema = mongoose.Schema(
                 ref: "Video",
             },
         ],
+        comments: [
+            {
+                video: {
+                    type: mongoose.Types.ObjectId,
+                    ref: "Video",
+                    required: true,
+                },
+                comment: { type: String, required: true },
+                reply: { type: Array },
+                createdAt: {
+                    type: Date,
+                    default: Date.now(),
+                },
+            },
+        ],
+        like: [
+            {
+                type: mongoose.Types.ObjectId,
+                ref: "Video",
+            },
+        ],
+        dislike: [
+            {
+                type: mongoose.Types.ObjectId,
+                ref: "Video",
+            },
+        ],
+        favorites: [
+            {
+                type: mongoose.Types.ObjectId,
+                ref: "Video",
+            },
+        ],
         followers: [
             {
                 type: mongoose.Types.ObjectId,
@@ -46,6 +84,12 @@ const schema = mongoose.Schema(
             {
                 type: mongoose.Types.ObjectId,
                 ref: "User",
+            },
+        ],
+        bullets: [
+            {
+                type: mongoose.Types.ObjectId,
+                ref: "Video",
             },
         ],
     },

@@ -2,7 +2,7 @@ const fs = require("fs");
 const multer = require("multer");
 const aws = require("aws-sdk");
 const multerS3 = require("multer-s3");
-const { extractS3FolderName } = require("../utils/helper");
+const { extractS3FolderName, removeFileFormate } = require("../utils/helper");
 
 const BUCKET = "lofihub-file";
 
@@ -52,9 +52,12 @@ const uploadVideo = (key, filename) => {
             bucket: BUCKET,
             acl: "public-read",
             key: (req, file, cb) => {
+                const fileName = removeFileFormate(file.originalname);
                 cb(
                     null,
-                    `${extractS3FolderName(req.baseUrl)}/${req.params[key]}.mp4`
+                    `${extractS3FolderName(req.baseUrl)}/${
+                        req.params[key]
+                    }/${fileName}-${Date.now()}.mp4`
                 );
             },
             limits: { fileSize: 1024 * 1024 * 200 },

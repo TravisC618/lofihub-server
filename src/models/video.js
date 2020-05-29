@@ -11,15 +11,14 @@ const schema = mongoose.Schema(
         },
         description: {
             type: String,
-            // required: true,
+            default: "Required a description...",
         },
         category: {
             type: Array,
-            // required: true,
         },
         ageRestriction: {
             type: Boolean,
-            // required: true,
+            default: false,
         },
         thumbnail: {
             type: String,
@@ -28,22 +27,49 @@ const schema = mongoose.Schema(
             type: Number,
             default: 0,
         },
-        like: {
-            type: Number,
-            default: 0,
-        },
-        dislike: {
-            type: Number,
-            default: 0,
-        },
-        comments: {
-            type: Array,
-        },
+        like: [
+            {
+                type: mongoose.Types.ObjectId,
+                ref: "User",
+            },
+        ],
+        dislike: [
+            {
+                type: mongoose.Types.ObjectId,
+                ref: "User",
+            },
+        ],
+        comments: [
+            {
+                poster: {
+                    type: mongoose.Types.ObjectId,
+                    ref: "User",
+                    required: true,
+                },
+                comment: { type: String, required: true },
+                reply: { type: Array },
+                createdAt: {
+                    type: Date,
+                    default: Date.now(),
+                },
+            },
+        ],
         poster: {
             type: mongoose.Types.ObjectId,
             ref: "User",
             required: true,
         },
+        bullets: [
+            {
+                content: { type: String, required: true },
+                time: { type: Number, required: true },
+                user: {
+                    type: mongoose.Types.ObjectId,
+                    ref: "User",
+                    required: true,
+                },
+            },
+        ],
     },
     {
         timestamps: { createdAt: "postDate", updatedAt: "updateDate" },
