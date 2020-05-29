@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json());
 
-app.use("/uploads", express.static("uploads")); //TODO to delete
+// app.use("/uploads", express.static("uploads")); //TODO to delete
 
 app.use("/api", routers);
 app.use(errHandler);

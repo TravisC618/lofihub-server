@@ -28,7 +28,7 @@ const addUser = async (req, res) => {
     // send async email
     const token = generateToken(newUser._id, "login");
     // TODO change to actual link
-    const url = `http://localhost:3000/confirmation/${token}`;
+    const url = `http://lofihub-client.s3-website-ap-southeast-2.amazonaws.com/confirmation/${token}`;
 
     transporter.sendMail({
         to: email,
@@ -109,7 +109,7 @@ const findUserPwd = async (req, res) => {
     // send async email
     const token = generateToken(existingUser._id, "email");
     // TODO change to actual link
-    const url = `http://localhost:3000/reset-password/${token}`;
+    const url = `http://lofihub-client.s3-website-ap-southeast-2.amazonaws.com/reset-password/${token}`;
 
     transporter.sendMail({
         to: email,
