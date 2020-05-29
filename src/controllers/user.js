@@ -1,6 +1,10 @@
 const User = require("../models/user");
 const Video = require("../models/video");
-const { formateResponse, convertUpdateBody } = require("../utils/helper");
+const {
+    formateResponse,
+    convertUpdateBody,
+    compare,
+} = require("../utils/helper");
 const { deleteImage } = require("../utils/upload");
 const { generateToken } = require("../utils/jwt");
 const { transporter } = require("../utils/nodemailer");
@@ -129,6 +133,14 @@ const getUser = async (req, res) => {
 
     if (!existingUser) {
         return formateResponse(res, "User does not existed", 404);
+    }
+
+    if (existingUser.videos) {
+        existingUser.videos.map((video) => {
+            if (video.comments.length !== 0) {
+                video.comments.sort(compare("createdAt", "desc"));
+            }
+        });
     }
 
     return formateResponse(res, existingUser, 200);

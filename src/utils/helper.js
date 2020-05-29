@@ -125,6 +125,17 @@ const convertUpdateBody = (body, keys) => {
     return newBody;
 };
 
+const compare = (attr, order) => {
+    return (obj1, obj2) => {
+        const val1 = obj1[attr];
+        const val2 = obj2[attr];
+
+        let result;
+        order === "asc" ? (result = val1 - val2) : (result = val2 - val1);
+        return result;
+    };
+};
+
 const extractS3FolderName = (baseUrl) => {
     const urlArray = baseUrl.split("/");
     return urlArray[urlArray.length - 1];
@@ -138,4 +149,5 @@ module.exports = {
     removeFileFormate,
     convertUpdateBody,
     extractS3FolderName,
+    compare,
 };

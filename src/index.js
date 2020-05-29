@@ -1,6 +1,9 @@
 require("dotenv").config();
 const express = require("express");
 require("express-async-errors");
+const webpush = require("web-push");
+const bodyParser = require("body-parser");
+const path = require("path");
 const cors = require("cors");
 const routers = require("./routes");
 const { connectToDB } = require("./utils/db");
@@ -17,6 +20,12 @@ app.use("/uploads", express.static("uploads")); //TODO to delete
 
 app.use("/api", routers);
 app.use(errHandler);
+
+webpush.setVapidDetails(
+    "mailto:test@test,com",
+    process.env.PUBLIC_VAPID_KEY,
+    process.env.PRIVATE_VAPID_KEY
+);
 
 connectToDB()
     .then(() => {

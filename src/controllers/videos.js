@@ -7,6 +7,7 @@ const {
     removeFileFormate,
     convertUpdateBody,
     countAllWithSearch,
+    compare,
 } = require("../utils/helper");
 const { deleteImage } = require("../utils/upload");
 
@@ -15,7 +16,12 @@ const getVideo = async (req, res) => {
 
     const existingVideo = await Video.findById(id)
         .populate("poster", "username avatar followers")
-        .populate("comments.poster", "username avatar");
+        .populate("comments.poster", "username avatar")
+        .populate("bullets.user", "username avatar");
+
+    if (existingVideo.bullets) {
+        existingVideo.bullets.sort(compare("time", "asc"));
+    }
 
     if (!existingVideo) {
         return formateResponse(res, "Video does not existed", 404);
