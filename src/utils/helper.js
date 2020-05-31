@@ -82,6 +82,7 @@ const searchQuery = async function (model, pagination, sort, search) {
     const { page, pageSize } = pagination;
     return model
         .find({ title: { $regex: search, $options: "i" } })
+        .populate("poster", "username avatar")
         .sort(sort)
         .skip((page - 1) * pageSize)
         .limit(pageSize);
