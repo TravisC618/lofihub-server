@@ -9,7 +9,7 @@ const hashStr = (data) => {
 };
 
 const checkSignature = (req, res) => {
-    const { signature, timestamp, nonce } = req.body;
+    const { signature, timestamp, nonce, echostr } = req.body;
     const token = "jrtesting";
     const tempArr = [token, timestamp, nonce];
     tempArr.sort();
@@ -21,9 +21,9 @@ const checkSignature = (req, res) => {
     const hashed = hashStr(combinedStr);
 
     if (hashed === signature) {
-        return res.send(true);
+        return res.send(echostr);
     }
-    return res.send(false);
+    return null;
 };
 
 module.exports = { checkSignature };
