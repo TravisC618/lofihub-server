@@ -1,6 +1,10 @@
 const { createHash } = require("crypto");
 const { formateResponse } = require("../utils/helper");
 
+// expires in 7200s
+const ACCESS_TOKEN =
+    "36_Lh7JKEn4ITYYML-Yb8MKiE6DE0GeAa3wK4PERMjJK_UVFazWLNcf5s1x_sSTVRMbJ2xC_qxbi94PAz451NYqcC5dN3yJKkcxpiPH7YGp2mNkNxfsbLDkkenMrl5tQ7bymfdOjsk94BOX5dIUHUOgAJALYS";
+
 const hashStr = (data) => {
     const hash = createHash("sha1");
     hash.update(data);
@@ -26,4 +30,9 @@ const checkSignature = (req, res) => {
     return null;
 };
 
-module.exports = { checkSignature };
+const evenHandler = (req, res) => {
+    const { ToUserName, FromUserName, CreateTime, MsgType, Event } = req.body;
+    return res.send({ ToUserName, FromUserName, CreateTime, MsgType, Event });
+};
+
+module.exports = { checkSignature, evenHandler };
