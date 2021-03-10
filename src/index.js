@@ -3,6 +3,7 @@ const express = require("express");
 require("express-async-errors");
 const webpush = require("web-push");
 const bodyParser = require("body-parser");
+require("body-parser-xml")(bodyParser);
 const path = require("path");
 const cors = require("cors");
 const routers = require("./routes");
@@ -15,6 +16,7 @@ const HOST = "0.0.0.0";
 const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.xml());
 
 // app.use("/uploads", express.static("uploads")); //TODO to delete
 
