@@ -5,6 +5,9 @@ const xml2js = require("xml2js");
 const { formateResponse } = require("../utils/helper");
 const axios = require('axios');
 const wechatConf = require("../config/wechatConf");
+const { cache } = require("../utils/cacheHelper");
+const OAuth = require('co-wechat-oauth');
+const oauth = new OAuth(wechatConf.appid, wechatConf.appsecret);
 
 // expires in 7200s
 const ACCESS_TOKEN =
@@ -44,21 +47,59 @@ const getMessage = async (req, res) => {
     return res.send(result);
 }
 
-// ============get access token============
-const tokenCache = { 
-    access_token: '', 
-    updateTime: Date.now(), 
-    expires_in: 7200
-};
-
-const getTokens = async (req, res) => {
+const getToken = async () => {
     const url = `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${wechatConf.appid}&secret=${wechatConf.appsecret}`;
-    const tokenRes = await axios.get(url);
-    Object.assign(tokenCache, tokenRes.data, {
-        updateTime: Date.now()
-    });
-    console.log("tokenCache: ", tokenCache);
-    return res.send(tokenRes);
+    const cacheName = 'access_token';
+    // if no cache => update token
+    if (!cache.has(cacheName)) {
+        const tokenRes = await axios.get(url);
+        const access_token = tokenRes.data.access_token;
+
+        // save access token
+        await cache.set(cacheName, { access_token }, 3600);
+        console.log('no cache: ', access_token);
+        return access_token;
+    }
+
+    console.log("has cache: ", cache.get(cacheName)[cacheName]);
+    return cache.get(cacheName)[cacheName];
 }
 
-module.exports = { checkSignature, getTokens, getMessage };
+const getFollowers = async (req, res) => {
+    const accessToken = await getToken();
+    const followersUrl = `https://api.weixin.qq.com/cgi-bin/user/get?access_token=${accessToken}`;
+    const getRes = await axios.get(followersUrl);
+    console.log('receive data: ', getRes.data);
+    
+    // getUserInfo
+    const firstUserOpenId = getRes.data.data.openid[0];
+    const getUserInfoUrl = `https://api.weixin.qq.com/cgi-bin/user/info?access_token=${accessToken}&openid=${firstUserOpenId}&lang=zh_CN`
+    const userInfoRes = await axios.get(getUserInfoUrl);
+    console.log('user info: ', userInfoRes.data);
+    return res.send(JSON.stringify(userInfoRes.data));
+}
+
+const wechatAuthorize = async (req, res) => {
+    const state = req.query.id;
+
+    // get the href url 
+    console.log("protocol: ", req.protocol);
+    console.log("hostname: ", req.hostname);
+    const redirect = `${req.protocol}//${req.hostname}/wechat/authCallback`;
+    
+    // info scope that user agree to share
+    // fetch user basic info
+    // if only needs user's openid, then scope set as 'snsapi_base'
+    const SCOPE = 'snsapi_userinfo'; //TODO save in confid
+
+    const authUrl = oauth.getAuthorizeURL(redirect, state, SCOPE);
+    console.log("authUrl: ", authUrl);
+    return res.send({ authUrl });
+}
+
+const wechatAuthCallback = async (req, res) => {
+    const code = req.query.code // auth code
+    return res.send('...callback');
+}
+
+module.exports = { checkSignature, getMessage, getFollowers, wechatAuthorize };
