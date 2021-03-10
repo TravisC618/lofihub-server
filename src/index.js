@@ -10,11 +10,18 @@ const routers = require("./routes");
 const { connectToDB } = require("./utils/db");
 const errHandler = require("./middlewares/errHandler");
 
+const corsOption = {
+    "origin": "http://lofihub-client.s3-website-ap-southeast-2.amazonaws.com",
+    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+    "preflightContinue": false,
+    "optionsSuccessStatus": 204
+};
+
 const app = express();
 
 const HOST = "0.0.0.0";
 const PORT = process.env.PORT || 4000;
-app.use(cors());
+app.use(cors(corsOption));
 app.use(express.json());
 app.use(bodyParser.xml());
 
