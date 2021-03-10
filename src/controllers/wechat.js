@@ -10,8 +10,7 @@ const ACCESS_TOKEN =
 
 const checkSignature = async (req, res) => {
     const token = "jrtesting";
-    const query = urlFormat.parse(req.url, true).query;
-    const { signature, timestamp, nonce, echostr } = query;
+    const { signature, timestamp, nonce, echostr } = req.query;
 
     console.log("isValid", isValid(timestamp, nonce, signature, token));
     if (isValid(timestamp, nonce, signature, token)) {
