@@ -3,6 +3,8 @@ const util = require("util");
 const { createHash } = require("crypto");
 const xml2js = require("xml2js");
 const { formateResponse } = require("../utils/helper");
+const axios = require('axios');
+const wechatConf = require("../config/wechatConf");
 
 // expires in 7200s
 const ACCESS_TOKEN =
@@ -42,46 +44,21 @@ const getMessage = async (req, res) => {
     return res.send(result);
 }
 
-const evenHandler = async (req, res) => {
-    const parser = new xml2js.Parser();
-    const builder = new xml2js.Builder();
-    let data = "";
-
-    // parse buffer to string once get the data
-    req.on("data", function (data_) {
-        data += data_.toString();
-    });
-
-    req.on("end", function () {
-        // console.log("data", bodyData);
-        // const email = getXMLNodeValur("email", bodyData);
-        // console.log("email", email);
-        parser.parseString(data, function (err, result) {
-            debugger;
-            console.log("FINISHED", err, result);
-            const {
-                emails: { email },
-            } = result;
-            const { to, from, heading, body } = email[0];
-            // const output = util.inspect(result, false, null, true);
-            // console.log("FINAL OUTPUT", output);
-            const output = {
-                to: to[0],
-                from: from[0],
-                heading: heading[0],
-                body: body[0],
-            };
-            return formateResponse(res, output, 200);
-        });
-    });
-    return res.send(data);
+// ============get access token============
+const tokenCache = { 
+    access_token: '', 
+    updateTime: Date.now(), 
+    expires_in: 7200
 };
 
-// helper
-const getXMLNodeValur = (name, xml) => {
-    const str = xml.split("<" + name + ">");
-    return str;
-    // const tempStr =
-};
+const getTokens = async (req, res) => {
+    const url = `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${wechatConf.appid}&secret=${wechatConf.appsecret}`;
+    const tokenRes = await axios.get(url);
+    Object.assign(tokenCache, tokenRes.data, {
+        updateTime: Date.now()
+    });
+    console.log("tokenCache: ", tokenCache);
+    return res.send(tokenRes);
+}
 
-module.exports = { checkSignature, evenHandler, getMessage };
+module.exports = { checkSignature, getTokens, getMessage };
