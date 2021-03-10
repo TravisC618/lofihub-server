@@ -1,4 +1,7 @@
+const fs = require("fs");
+const util = require("util");
 const { createHash } = require("crypto");
+const xml2js = require("xml2js");
 const { formateResponse } = require("../utils/helper");
 
 // expires in 7200s
@@ -30,9 +33,63 @@ const checkSignature = (req, res) => {
     return null;
 };
 
-const evenHandler = (req, res) => {
-    const { ToUserName, FromUserName, CreateTime, MsgType, Event } = req.body;
-    return res.send({ ToUserName, FromUserName, CreateTime, MsgType, Event });
+const getMessage = (req, res) => {
+    const { xml: msg } = req.body;
+    console.log('Receive:', msg)
+    const builder = new xml2js.Builder();
+    const result = builder.buildObject({
+        xml: {
+            ToUserName: msg.FromUserName, 
+            FromUserName: msg.ToUserName, 
+            CreateTime: Date.now(),
+            MsgType: msg.MsgType,
+            Content: 'Hello ' + msg.Content
+        }
+    });
+
+    return res.send(result);
+}
+
+const evenHandler = async (req, res) => {
+    const parser = new xml2js.Parser();
+    const builder = new xml2js.Builder();
+    let data = "";
+
+    // parse buffer to string once get the data
+    req.on("data", function (data_) {
+        data += data_.toString();
+    });
+
+    req.on("end", function () {
+        // console.log("data", bodyData);
+        // const email = getXMLNodeValur("email", bodyData);
+        // console.log("email", email);
+        parser.parseString(data, function (err, result) {
+            debugger;
+            console.log("FINISHED", err, result);
+            const {
+                emails: { email },
+            } = result;
+            const { to, from, heading, body } = email[0];
+            // const output = util.inspect(result, false, null, true);
+            // console.log("FINAL OUTPUT", output);
+            const output = {
+                to: to[0],
+                from: from[0],
+                heading: heading[0],
+                body: body[0],
+            };
+            return formateResponse(res, output, 200);
+        });
+    });
+    return res.send(data);
 };
 
-module.exports = { checkSignature, evenHandler };
+// helper
+const getXMLNodeValur = (name, xml) => {
+    const str = xml.split("<" + name + ">");
+    return str;
+    // const tempStr =
+};
+
+module.exports = { checkSignature, evenHandler, getMessage };
