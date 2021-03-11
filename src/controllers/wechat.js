@@ -87,7 +87,7 @@ const wechatAuthorize = async (req, res) => {
     // console.log("hostname: ", req.hostname);
     // const redirect = `${req.protocol}//${req.hostname}/api/wechat/authCallback`;
     const domain = 'https://lofihub-server.herokuapp.com';
-    const redirect = `${domain}/api/wechat/authCallback`;
+    const redirect = `${domain}/api/wechat/wechatAuthCallback`;
     
     // info scope that user agree to share
     // fetch user basic info
@@ -100,8 +100,16 @@ const wechatAuthorize = async (req, res) => {
 }
 
 const wechatAuthCallback = async (req, res) => {
-    const code = req.query.code // auth code
-    return res.send('...callback');
+    // auth code fetching from wechat server
+    const code = req.query.code;
+
+    // use code to get access of wechat user's info
+    const token = await oauth.getAccessToken(code); 
+
+    const { access_token: accessToken, openid } = token.data;
+
+    // auth locally ...
+    return res.send({ openid }); // TODO to delete 不能把openid传到前端
 }
 
-module.exports = { checkSignature, getMessage, getFollowers, wechatAuthorize };
+module.exports = { checkSignature, getMessage, getFollowers, wechatAuthorize, wechatAuthCallback };
