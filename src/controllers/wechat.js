@@ -116,8 +116,6 @@ const wechatAuthCallback = async (req, res) => {
         // fetch current user info by openid
         const userInfo = await getUserInfo(openid);
         return res.send({ userInfo });
-
-
     } catch (error) {
         return res.error({ error });
     }
@@ -131,4 +129,23 @@ const getUserInfo = async (openid) => {
     return userInfo;
 }
 
-module.exports = { checkSignature, getMessage, getFollowers, wechatAuthorize, wechatAuthCallback };
+const eventHandler = async (req, res) => {
+    const { xml: msg } = req.body;
+    console.log('Receive:', msg)
+    const builder = new xml2js.Builder();
+    const result = builder.buildObject({
+        xml: {
+            ToUserName: msg.FromUserName, 
+            FromUserName: msg.ToUserName, 
+            CreateTime: Date.now(),
+            MsgType: msg.MsgType,
+            Content: 'Hello ' + msg.Content
+        }
+    });
+
+    console.log('access_token: ', getToken());
+
+    return res.send(result);
+}
+
+module.exports = { checkSignature, getMessage, getFollowers, wechatAuthorize, wechatAuthCallback, eventHandler };
