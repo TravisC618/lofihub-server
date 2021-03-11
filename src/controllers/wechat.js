@@ -132,15 +132,24 @@ const getUserInfo = async (openid) => {
 const eventHandler = async (req, res) => {
     const { xml: msg } = req.body;
     console.log('Receive:', msg)
+    let baseData = {
+        ToUserName: msg.FromUserName, 
+        FromUserName: msg.ToUserName, 
+        CreateTime: Date.now()
+    }
+
+    if (msg.MsgType === 'event') {
+        if (msg.Event === 'subscribe') {
+            baseData = Object.assign(baseData, {
+                MsgType: msg.MsgType, // 可不要？
+                Content: '您好，您的微信号尚未绑定匠人lms账号哦~请按照页面提示注册新账号或绑定已有账号。'
+            })
+        }
+    }
+
     const builder = new xml2js.Builder();
     const result = builder.buildObject({
-        xml: {
-            ToUserName: msg.FromUserName, 
-            FromUserName: msg.ToUserName, 
-            CreateTime: Date.now(),
-            MsgType: msg.MsgType,
-            Content: 'Hello ' + msg.Content
-        }
+        xml: baseData
     });
 
     console.log('access_token: ', getToken());
