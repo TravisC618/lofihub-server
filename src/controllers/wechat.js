@@ -101,19 +101,34 @@ const wechatAuthorize = async (req, res) => {
 
 const wechatAuthCallback = async (req, res) => {
     // auth code fetching from wechat server
-    const code = req.query.code;
+    const { code, state} = req.query;
 
     const isProd = process.env.NODE_ENV === 'production';
     const domain = isProd ? 'http://lofihub-client.s3-website-ap-southeast-2.amazonaws.com' : 'http://localhost:3000';
     const redirect = '/login';
 
-    // use code to get access of wechat user's info
-    const token = await oauth.getAccessToken(code); 
+    try {
+        // use code to get access of wechat user's info
+        const token = await oauth.getAccessToken(code); 
+    
+        const { access_token: accessToken, openid } = token.data;
+    
+        // fetch current user info by openid
+        const userInfo = await getUserInfo(openid);
+        return res.send({ userInfo });
 
-    const { access_token: accessToken, openid } = token.data;
+
+    } catch (error) {
+        return res.error({ error });
+    }
 
     // auth locally ...
     return res.status(201).redirect(`${domain}${redirect}?valid=${code}`); // TODO to delete 不能把openid传到前端
+}
+
+const getUserInfo = async (openid) => {
+    const userInfo = await oauth.getUser(openid);
+    return userInfo;
 }
 
 module.exports = { checkSignature, getMessage, getFollowers, wechatAuthorize, wechatAuthCallback };
