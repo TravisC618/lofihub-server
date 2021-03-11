@@ -83,9 +83,11 @@ const wechatAuthorize = async (req, res) => {
     const state = req.query.id;
 
     // get the href url 
-    console.log("protocol: ", req.protocol);
-    console.log("hostname: ", req.hostname);
-    const redirect = `${req.protocol}//${req.hostname}/wechat/authCallback`;
+    // console.log("protocol: ", req.protocol);
+    // console.log("hostname: ", req.hostname);
+    // const redirect = `${req.protocol}//${req.hostname}/api/wechat/authCallback`;
+    const domain = 'https://lofihub-server.herokuapp.com';
+    const redirect = `${domain}/api/wechat/authCallback`;
     
     // info scope that user agree to share
     // fetch user basic info
