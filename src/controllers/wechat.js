@@ -131,15 +131,30 @@ const getUserInfo = async (openid) => {
 
 const eventHandler = async (req, res) => {
     const { xml: msg } = req.body;
+
     console.log('Receive:', msg)
+
+    try {
+        const response = msgHandler(msg);
+        // ...
+        return res.status(200).send(response);
+    } catch (error) {
+        console.error('wechat event handler error: ', error);
+        return res.status(400).send(error);
+    }
+}
+
+const msgHandler = (msg) => {
+    const builder = new xml2js.Builder();
+
     let baseData = {
         ToUserName: msg.FromUserName, 
         FromUserName: msg.ToUserName, 
         CreateTime: Date.now()
     }
 
-    if (msg.MsgType === 'event') {
-        if (msg.Event === 'subscribe') {
+    if (msg.MsgType[0] === 'event') {
+        if (msg.Event[0] === 'subscribe') {
             baseData = Object.assign(baseData, {
                 MsgType: msg.MsgType, // 可不要？
                 Content: '您好，您的微信号尚未绑定匠人lms账号哦~请按照页面提示注册新账号或绑定已有账号。'
@@ -147,14 +162,11 @@ const eventHandler = async (req, res) => {
         }
     }
 
-    const builder = new xml2js.Builder();
     const result = builder.buildObject({
         xml: baseData
     });
 
-    console.log('access_token: ', getToken());
-
-    return res.send(result);
+    return result;
 }
 
 module.exports = { checkSignature, getMessage, getFollowers, wechatAuthorize, wechatAuthCallback, eventHandler };
